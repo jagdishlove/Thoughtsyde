@@ -4,9 +4,13 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import tailwindStyles from "../index.css?inline";
-import supabase from "../supabaseClient";
+// import supabase from "../supabaseClient";
 
 export const Widget = ({ projectId }) => {
   const [rating, setRating] = useState(3);
@@ -26,7 +30,7 @@ export const Widget = ({ projectId }) => {
       p_message: form.feedback.value,
       p_rating: rating,
     };
-    const { data: returnedData, error } = await supabase.rpc("add_feedback", data);
+    // const { data: returnedData, error } = await supabase.rpc("add_feedback", data);
     setSubmitted(true);
     console.log(returnedData);
   };
@@ -34,84 +38,87 @@ export const Widget = ({ projectId }) => {
   return (
     <>
       <style>{tailwindStyles}</style>
+
       <div className="widget fixed bottom-4 right-4 z-50">
         <Popover>
           <PopoverTrigger asChild>
-            <Button className="rounded-full shadow-lg hover:scale-105">
-              <MessageCircleIcon className="mr-2 h-5 w-5" />
+            <Button className="rounded-full px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 shadow-xl hover:scale-105 hover:shadow-2xl transition-transform duration-300">
+              <MessageCircleIcon />
               Feedback
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="widget rounded-lg bg-card p-4 shadpw-lg w-full max-w-md">
+          <PopoverContent className="rounded-xl bg-background p-6 shadow-2xl w-full max-w-md border border-muted">
             <style>{tailwindStyles}</style>
             {submitted ? (
               <div>
-                <h3 className="text-lg font-bold">Thank you for your feedback!</h3>
+                <h3 className="text-lg font-bold">
+                  Thank you for your feedback!
+                </h3>
                 <p className="mt-4">
-                  We appreciate your feedback. It helps us improve our product and provide better
-                  service to our customers.
+                  We appreaciate your feedback. It helps us improve our product
+                  and provide better service to our customers.
                 </p>
               </div>
             ) : (
-              <div>
-                <h3 className="text-lg font-bold">Send us your feedback</h3>
-                <form
-                  className="space-y-2"
-                  onSubmit={submit}
-                >
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Name</Label>
-                      <Input
-                        id="name"
-                        placeholder="Enter your name"
-                      />
+              <div className="space-y-6">
+                <h3 className="text-xl font-bold text-center text-foreground">
+                  💬 We’d love your feedback!
+                </h3>
+
+                <form onSubmit={submit} className="flex flex-col gap-5">
+                  {/* Name and Email */}
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex flex-col w-full">
+                      <Label htmlFor="name" className="mb-1">
+                        Name
+                      </Label>
+                      <Input id="name" placeholder="Your name" />
                     </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        placeholder="Enter your email"
-                      />
+                    <div className="flex flex-col w-full">
+                      <Label htmlFor="email" className="mb-1">
+                        Email
+                      </Label>
+                      <Input id="email" placeholder="Your email" />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="feedback">Feedback</Label>
+
+                  {/* Feedback */}
+                  <div className="flex flex-col">
+                    <Label htmlFor="feedback" className="mb-1">
+                      Feedback
+                    </Label>
                     <Textarea
                       id="feedback"
-                      placeholder="Tell us what you think"
-                      className="min-h-[100px]"
+                      placeholder="Tell us what you think..."
+                      className="min-h-[120px] resize-none"
                     />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {[...Array(5)].map((_, index) => (
-                        <StarIcon
-                          key={index}
-                          className={`h-5 w-5 cursor-pointer ${
-                            rating > index ? "fill-primary" : "fill-muted stroke-muted-foreground"
-                          }`}
-                          onClick={() => onSelectStar(index)}
-                        />
-                      ))}
-                    </div>
-                    <Button type="submit">Submit</Button>
+
+                  {/* Star Rating */}
+                  <div className="flex justify-center items-center gap-1">
+                    {[...Array(5)].map((_, index) => (
+                      <StarIcon
+                        key={index}
+                        className={`h-6 w-6 cursor-pointer transition-colors ${
+                          rating > index
+                            ? "fill-yellow-400 stroke-yellow-500"
+                            : "fill-white  "
+                        }`}
+                        onClick={() => onSelectStar(index)}
+                      />
+                    ))}
                   </div>
+
+                  {/* Submit */}
+                  <Button
+                    className="text-white bg-indigo-600 hover:bg-indigo-700 transition-colors mx-auto px-6 py-2"
+                    type="submit"
+                  >
+                    Submit Feedback
+                  </Button>
                 </form>
               </div>
             )}
-            <Separator className="my-4" />
-            <div className="text-gray-600">
-              Powered by{" "}
-              <a
-                href="https://nexx-saas.vercel.app/"
-                target="_blank"
-                className="text-indigo-600 hover:underline"
-              >
-                Nexx ⚡️
-              </a>
-            </div>
           </PopoverContent>
         </Popover>
       </div>
@@ -148,10 +155,10 @@ function MessageCircleIcon(props) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      class="lucide lucide-message-circle"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="lucide lucide-message-circle"
     >
       <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
     </svg>
