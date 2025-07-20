@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import tailwindStyles from "../index.css?inline";
-// import supabase from "../supabaseClient";
+import supabase from "../supabaseClient";
 
 export const Widget = ({ projectId }) => {
   const [rating, setRating] = useState(3);
@@ -24,13 +24,16 @@ export const Widget = ({ projectId }) => {
     e.preventDefault();
     const form = e.target;
     const data = {
-      p_project_id: projectId,
+      p_project_id: "1",
       p_user_name: form.name.value,
       p_user_email: form.email.value,
       p_message: form.feedback.value,
-      p_rating: rating,
+      // p_rating: rating,
     };
-    // const { data: returnedData, error } = await supabase.rpc("add_feedback", data);
+    const { data: returnedData, error } = await supabase.rpc(
+      "add_feedback",
+      data
+    );
     setSubmitted(true);
     console.log(returnedData);
   };

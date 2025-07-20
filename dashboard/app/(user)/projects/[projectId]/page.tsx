@@ -1,9 +1,10 @@
 import { DataTable } from "@/components/DataTable";
+import { feedbackColumns } from "@/components/feedbackColumns";
 import db from "@/db";
 import { projects as dbProjects } from "@/db/schema";
 import { ColumnDef } from "@tanstack/react-table";
 import { eq } from "drizzle-orm";
-import { Globe } from "lucide-react";
+import { Code, Globe, Star } from "lucide-react";
 import Link from "next/link";
 
 export type Feedback = {
@@ -32,20 +33,6 @@ const page = async ({
   const project: any = projects[0];
   const feedbacks: any = project.feedbacks;
 
-  const feedbackColumns: ColumnDef<Feedback>[] = [
-    {
-      accessorKey: "userName",
-      header: "User Name",
-    },
-    {
-      accessorKey: "userEMail",
-      header: "Email",
-    },
-    {
-      accessorKey: "message",
-      header: "Message",
-    },
-  ];
   return (
     <div className="max-w-4xl mx-auto px-6 py-8">
       {/* Project Card */}
@@ -55,16 +42,26 @@ const page = async ({
         </h1>
         <p className="text-gray-700 mb-5">{project?.description}</p>
 
-        {project?.url && (
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          {project?.url && (
+            <Link
+              href={project.url}
+              className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200"
+            >
+              <Globe className="mr-2 h-5 w-5" />
+              Visit Website
+            </Link>
+          )}
+
+          {/* New Embed Code Button */}
           <Link
-            href={project.url}
-            target="_blank"
-            className="inline-flex items-center text-blue-600 hover:text-blue-800 font-semibold transition-colors duration-200"
+            href={`${params.projectId}/instructions`}
+            className="inline-flex items-center text-gray-700 hover:text-black font-semibold transition-colors duration-200"
           >
-            <Globe className="mr-2 h-5 w-5" />
-            Visit Website
+            <Code className="mr-2 h-5 w-5" />
+            View Embed Code
           </Link>
-        )}
+        </div>
       </div>
 
       {/* Feedback Table */}

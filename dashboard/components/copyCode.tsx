@@ -6,7 +6,7 @@ import { Copy } from "lucide-react";
 export default function CodeBlock({ projectId, widgetUrl }) {
   const [copied, setCopied] = useState(false);
 
-  const codeString = `<my-widget project="${projectId}"></my-widget>\n<script src="${widgetUrl}/widget.umd.js"></script>`;
+  const codeString = `<my-widget project-id="${projectId}"></my-widget>\n<script src="${widgetUrl}/widget.umd.js"></script>`;
 
   const handleCopy = async () => {
     try {
