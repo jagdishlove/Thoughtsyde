@@ -3,18 +3,22 @@ import {
   SignUpButton,
   SignedIn,
   SignedOut,
-  UserButton
-} from '@clerk/nextjs'
-import Image from 'next/image'
-import { Button } from "@/components/ui/button"
-import HeaderMenu from "@/components/header-menu"
+  UserButton,
+} from "@clerk/nextjs";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import HeaderMenu from "@/components/header-menu";
+import feedloopLogo from "@/assets/logo/feedloop.png";
 
 const PageHeader = () => {
   return (
     <header className="sticky inset-x-0 top-0 z-30 w-full transition-all bg-white/20 backdrop-blur-md">
       <div className="w-full max-w-screen-xl px-2.5 lg:px-20 relative mx-auto border-b">
         <div className="flex h-14 items-center justify-between">
-          <Image src="/logo.png" alt="Logo" width={120} height={200} />
+          <Link href="/">
+            <Image src={feedloopLogo} alt="Logo" width={80} height={200} />
+          </Link>
           <div>
             <SignedOut>
               <SignInButton>
@@ -32,7 +36,7 @@ const PageHeader = () => {
         </div>
       </div>
     </header>
-  )
-}
+  );
+};
 
 export default PageHeader;

@@ -10,6 +10,6 @@ export default defineConfig({
     prefix: "supabase",
   },
   dbCredentials: {
-    url: process.env.DATABASE_URL || "postgres://localhost:5432/drizzle",
+    url: process.env.DATABASE_URL!,
   },
 });
