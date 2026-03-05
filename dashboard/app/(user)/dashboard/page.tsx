@@ -1,31 +1,26 @@
-import NewProjBtn from "@/components/new-proj";
-import db from "@/db";
+import NewProjBtn from "@/components/new-proj"
+import { db } from "@/db";
 import { projects } from "@/db/schema";
-import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
-import ProjectList from "./project-list";
+import { auth } from "@clerk/nextjs/server";
+import ProjectsList from "./projects-list";
+import { getSubscription } from "@/actions/userSubscriptions";
+import { maxFreeProjects } from "@/lib/payments";
 
-const Page = async () => {
-  const { userId } = await auth();
-
+export default async function Page() {
+  const { userId } = auth();
   if (!userId) {
     return null;
   }
-  const userProjects = await db
-    .select()
-    .from(projects)
-    .where(eq(projects.userId, userId));
+
+  const userProjects = await db.select().from(projects).where(eq(projects.userId, userId));
+
+  const subscribed = await getSubscription({ userId });
+
   return (
     <div>
-      <div className="flex items-center justify-center">
-        <h1 className="font-bold max-w-full text-center p-5 text-3xl my-4">
-          Your projects
-        </h1>
-        <NewProjBtn />
-      </div>
-      <ProjectList projects={userProjects} />
-    </div>
-  );
-};
-
-export default Page;
+      <div className="flex items-center justify-center gap-3">
+        <h1 className="text-3xl font-bold text-center my-4">Your Projects</h1>{subscribed !== true && userProjects.length > maxFreeProjects ? null : <NewProjBtn />}
+      </div><ProjectsList projects={userProjects} subscribed={subscribed} /></div>
+  )
+}
