@@ -1,6 +1,10 @@
 import Stripe from "stripe";
 import { stripe } from "@/lib/stripe";
-import { createSubscription, cancelSubscription } from "@/actions/userSubscriptions";
+import {
+  createSubscription,
+  cancelSubscription,
+} from "@/actions/userSubscriptions";
+import { monthlyPlanId, yearlyPlanId } from "@/lib/payments";
 
 const relevantEvents = new Set([
   "checkout.session.completed",
@@ -31,7 +35,16 @@ export async function POST(req: Request) {
   if (relevantEvents.has(event.type)) {
     if (event.type === "customer.subscription.created") {
       const { customer } = data;
-      await createSubscription({ stripeCustomerId: customer as string });
+      // Determine plan type from the price ID
+      const priceId = data.items?.data[0]?.price?.id;
+      let planType: "monthly" | "yearly" = "monthly";
+      if (priceId === yearlyPlanId) {
+        planType = "yearly";
+      }
+      await createSubscription({
+        stripeCustomerId: customer as string,
+        planType,
+      });
     } else if (event.type === "customer.subscription.deleted") {
       const { customer } = data;
       await cancelSubscription({ stripeCustomerId: customer as string });
@@ -42,6 +55,6 @@ export async function POST(req: Request) {
     JSON.stringify({
       received: true,
     }),
-    { status: 200 }
+    { status: 200 },
   );
 }

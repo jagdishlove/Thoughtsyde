@@ -15,6 +15,7 @@ import supabase from "../supabaseClient";
 export const Widget = ({ projectId }) => {
   const [rating, setRating] = useState(3);
   const [submitted, setSubmitted] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const onSelectStar = (index) => {
     setRating(index + 1);
@@ -28,11 +29,11 @@ export const Widget = ({ projectId }) => {
       p_user_name: form.name.value,
       p_user_email: form.email.value,
       p_message: form.feedback.value,
-      // p_rating: rating,
+      p_rating: rating,
     };
     const { data: returnedData, error } = await supabase.rpc(
       "add_feedback",
-      data
+      data,
     );
     setSubmitted(true);
     console.log(returnedData);
@@ -42,15 +43,18 @@ export const Widget = ({ projectId }) => {
     <>
       <style>{tailwindStyles}</style>
 
-      <div className="widget fixed bottom-4 right-4 z-50">
-        <Popover>
+      <div className="widget fixed bottom-4 right-4 z-50 bg-white">
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
-            <Button className="rounded-full px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 shadow-xl hover:scale-105 hover:shadow-2xl transition-transform duration-300">
+            <Button
+              className="rounded-full px-5 py-2 bg-gradient-to-r from-indigo-500 to-purple-500 shadow-xl hover:scale-105 hover:shadow-2xl transition-transform duration-300"
+              onClick={() => setIsOpen((prev) => !prev)}
+            >
               <MessageCircleIcon />
               Feedback
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="rounded-xl bg-background p-6 shadow-2xl w-full max-w-md border border-muted">
+          <PopoverContent className="rounded-xl bg-background p-6 shadow-2xl w-full max-w-md border border-muted bg-white">
             <style>{tailwindStyles}</style>
             {submitted ? (
               <div>

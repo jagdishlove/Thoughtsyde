@@ -7,6 +7,7 @@ export type PricingPlan = {
   isPopular: boolean;
   features: string[];
   url: string;
+  planKey?: string;
 }
 
 export const pricingPlans: PricingPlan[] = [
@@ -16,6 +17,7 @@ export const pricingPlans: PricingPlan[] = [
     description: "For small teams just getting started",
     isPopular: false,
     url: "/dashboard",
+    planKey: "free",
     features: [
       "3 projects",
       "Unlimited users",
@@ -29,6 +31,7 @@ export const pricingPlans: PricingPlan[] = [
     description: "For growing teams",
     isPopular: true,
     url: "/payments/subscribe?plan=monthly",
+    planKey: "monthly",
     features: [
       "Unlimited projects",
       "Unlimited users",
@@ -42,6 +45,7 @@ export const pricingPlans: PricingPlan[] = [
     description: "Upgrade to save more!",
     isPopular: false,
     url: "/payments/subscribe?plan=yearly",
+    planKey: "yearly",
     features: [
       "Unlimited projects",
       "Unlimited users",
@@ -51,8 +55,11 @@ export const pricingPlans: PricingPlan[] = [
   },
 ]
 
+type PricingSectionProps = {
+  currentPlan?: string | null;
+}
 
-const PricingSection = () => {
+const PricingSection = ({ currentPlan }: PricingSectionProps) => {
   return (
     <div className="text-center">
       <h1 className="capitalize text-3xl">Pricing</h1>
@@ -62,7 +69,14 @@ const PricingSection = () => {
       <div className="mt-10 grid items-center grid-cols-1 gap-3 md:grid-cols-3 max-w-screen-xl">
         {
           pricingPlans.map((plan, index) => (
-            <PricingCard key={index} {...plan} />
+            <PricingCard 
+              key={index} 
+              {...plan} 
+              isCurrentPlan={
+                (currentPlan === null && plan.planKey === "free") ||
+                currentPlan === plan.planKey
+              }
+            />
           ))
         }
       </div>

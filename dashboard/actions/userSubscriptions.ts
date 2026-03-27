@@ -2,20 +2,32 @@ import { db } from "@/db";
 import { subscriptions } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export async function createSubscription({ stripeCustomerId }: { stripeCustomerId: string }) {
+export async function createSubscription({
+  stripeCustomerId,
+  planType,
+}: {
+  stripeCustomerId: string;
+  planType: "monthly" | "yearly";
+}) {
   await db
     .update(subscriptions)
     .set({
       subscribed: true,
+      planType,
     })
     .where(eq(subscriptions.stripeCustomerId, stripeCustomerId));
 }
 
-export async function cancelSubscription({ stripeCustomerId }: { stripeCustomerId: string }) {
+export async function cancelSubscription({
+  stripeCustomerId,
+}: {
+  stripeCustomerId: string;
+}) {
   await db
     .update(subscriptions)
     .set({
       subscribed: false,
+      planType: null,
     })
     .where(eq(subscriptions.stripeCustomerId, stripeCustomerId));
 }
@@ -24,5 +36,5 @@ export async function getSubscription({ userId }: { userId: string }) {
   const userSubscription = await db.query.subscriptions.findFirst({
     where: eq(subscriptions.userId, userId),
   });
-  return userSubscription?.subscribed;
+  return userSubscription;
 }

@@ -8,9 +8,9 @@ function App() {
   const [count, setCount] = useState(0);
 
   return (
-    <>
-      <Widget projectId="1" />
-    </>
+    <div>
+      <Widget projectId="1" />{" "}
+    </div>
   );
 }
 

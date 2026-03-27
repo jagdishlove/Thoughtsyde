@@ -35,4 +35,5 @@ export const subscriptions = pgTable("subscriptions", {
   stripeCustomerId: text("stripe_customer_id"),
   stripeSubscriptionId: text("stripe_subscription_id"),
   subscribed: boolean("subscribed"),
+  planType: varchar("plan_type"), // 'monthly' or 'yearly'
 });
