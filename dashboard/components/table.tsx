@@ -255,7 +255,7 @@ function Table({ data }: { data: Feedback[] }) {
             <span className="text-sm text-gray-500">Active filters:</span>
             {filters.search && (
               <Badge variant="secondary" className="flex items-center gap-1">
-                Search: "{filters.search}"
+                Search: &quot;{filters.search}&quot;
                 <button 
                   onClick={() => setFilters(prev => ({ ...prev, search: '' }))}
                   className="ml-1 hover:text-red-500"
