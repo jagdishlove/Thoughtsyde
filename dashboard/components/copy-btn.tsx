@@ -1,5 +1,7 @@
 "use client";
-import { Clipboard } from "lucide-react";
+import { useState } from "react";
+import { Clipboard, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -7,28 +9,44 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
-
-const CopyBtn = ({ text }: {
+const CopyBtn = ({ text, className }: {
   text: string
+  className?: string
 }) => {
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
-      alert('Copied to clipboard');
-    })
+  const [copied, setCopied] = useState(false);
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
   }
 
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
-          <button onClick={() => copyToClipboard(text)} className="text-slate-50 absolute p-2 right-0 top-0"><Clipboard /></button>
+          <Button 
+            onClick={() => copyToClipboard(text)} 
+            variant="ghost" 
+            size="sm"
+            className={`text-slate-300 hover:text-white hover:bg-slate-800 ${className}`}
+          >
+            {copied ? (
+              <Check className="w-4 h-4 text-green-400" />
+            ) : (
+              <Clipboard className="w-4 h-4" />
+            )}
+          </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Copy code</p>
+          <p>{copied ? 'Copied!' : 'Copy code'}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
-
   )
 }
 

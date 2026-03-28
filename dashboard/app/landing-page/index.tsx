@@ -9,7 +9,9 @@ import { eq } from "drizzle-orm";
 const LandingPage = async () => {
   const { userId } = await auth();
   
-  let currentPlan: string | null = null;
+  // Default to "free" plan - will be overridden if user has a paid subscription
+  let currentPlan: string = "free";
+  let hasActiveSubscription: boolean = false;
   
   if (userId) {
     const subscription = await db.query.subscriptions.findFirst({
@@ -17,18 +19,31 @@ const LandingPage = async () => {
     });
     
     if (subscription?.subscribed && subscription.planType) {
+      // User has an active paid subscription
       currentPlan = subscription.planType;
-    } else if (!subscription?.subscribed) {
-      currentPlan = null; // Free plan
+      hasActiveSubscription = true;
     }
+    // If no subscription or subscribed=false, keep default "free" plan
   }
 
   return (
-    <div>
+    <main className="flex-1">
+      {/* Hero Section */}
       <Hero />
-      <FeaturesSection />
-      <PricingSection currentPlan={currentPlan} />
-    </div>
+      
+      {/* Features Section */}
+      <section id="features">
+        <FeaturesSection />
+      </section>
+      
+      {/* Pricing Section */}
+      <section id="pricing">
+        <PricingSection 
+          currentPlan={currentPlan} 
+          hasActiveSubscription={hasActiveSubscription}
+        />
+      </section>
+    </main>
   );
 }
 

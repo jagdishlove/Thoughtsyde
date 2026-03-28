@@ -1,10 +1,16 @@
 "use client";
 import { PricingPlan } from "./pricing-section";
-import { Check } from "lucide-react";
+import { Check, Crown, ArrowDown, Loader2, CreditCard, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { getStripe } from "@/lib/stripe-client";
+import { monthlyPlanId, yearlyPlanId } from "@/lib/payments";
 
 type PricingCardProps = PricingPlan & {
   isCurrentPlan?: boolean;
+  hasActiveSubscription?: boolean;
+  onManageSubscription?: () => void;
 };
 
 const PricingCard = ({
@@ -13,66 +19,235 @@ const PricingCard = ({
   description,
   features,
   isPopular,
-  url,
+  planKey,
   isCurrentPlan,
+  hasActiveSubscription,
+  onManageSubscription,
 }: PricingCardProps) => {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const onClick = () => {
-    if (!isCurrentPlan) {
-      router.push(url);
+  const handleClick = async () => {
+    // If already on this plan, do nothing
+    if (isCurrentPlan) return;
+
+    setIsLoading(true);
+
+    // Free plan with active subscription = cancel/downgrade
+    if (planKey === "free" && hasActiveSubscription) {
+      // Open customer portal to cancel
+      if (onManageSubscription) {
+        onManageSubscription();
+      } else {
+        // Navigate to portal directly
+        try {
+          const response = await fetch("/api/stripe/create-portal", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+          });
+          const data = await response.json();
+          if (data.url?.url) {
+            router.push(data.url.url);
+          }
+        } catch (error) {
+          console.error("Failed to open portal:", error);
+        }
+      }
+      setIsLoading(false);
+      return;
     }
+
+    // Direct Stripe checkout for paid plans - NO intermediate page
+    if (planKey === "monthly" || planKey === "yearly") {
+      try {
+        const priceId = planKey === "monthly" ? monthlyPlanId : yearlyPlanId;
+        
+        const response = await fetch("/api/stripe/checkout-session", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ price: priceId }),
+        });
+
+        const { sessionId, error } = await response.json();
+
+        if (error) {
+          console.error("Checkout error:", error);
+          setIsLoading(false);
+          return;
+        }
+
+        const stripe = await getStripe();
+        if (stripe) {
+          await stripe.redirectToCheckout({ sessionId });
+        }
+      } catch (error) {
+        console.error("Failed to create checkout session:", error);
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    // Free plan - just navigate to dashboard
+    router.push("/dashboard");
   };
+
+  // Determine button text and state
+  const getButtonConfig = () => {
+    if (isCurrentPlan) {
+      return {
+        text: "Current Plan",
+        icon: <Crown className="w-4 h-4 mr-2" />,
+        disabled: true,
+        variant: "default" as const,
+        className: "bg-green-600 hover:bg-green-600 cursor-default",
+      };
+    }
+
+    // Free plan with active subscription
+    if (planKey === "free" && hasActiveSubscription) {
+      return {
+        text: isLoading ? "Opening Portal..." : "Downgrade to Free",
+        icon: <ArrowDown className="w-4 h-4 mr-2" />,
+        disabled: isLoading,
+        variant: "outline" as const,
+        className: "border-gray-400 hover:bg-gray-100",
+      };
+    }
+
+    // Upgrade scenarios
+    if (hasActiveSubscription) {
+      return {
+        text: isLoading ? "Processing..." : `Switch to ${title}`,
+        icon: <CreditCard className="w-4 h-4 mr-2" />,
+        disabled: isLoading,
+        variant: "default" as const,
+        className: "bg-gray-900 hover:bg-gray-800",
+      };
+    }
+
+    // New subscription - direct checkout
+    if (planKey === "monthly" || planKey === "yearly") {
+      return {
+        text: isLoading ? "Loading..." : `Subscribe Now`,
+        icon: <CreditCard className="w-4 h-4 mr-2" />,
+        disabled: isLoading,
+        variant: "default" as const,
+        className: "bg-gray-900 hover:bg-gray-800",
+      };
+    }
+
+    // Free plan
+    return {
+      text: "Get Started Free",
+      icon: <Sparkles className="w-4 h-4 mr-2" />,
+      disabled: false,
+      variant: "outline" as const,
+      className: "border-gray-400 hover:bg-gray-100",
+    };
+  };
+
+  const buttonConfig = getButtonConfig();
 
   return (
     <div
-      className={`border flex flex-col justify-between rounded-lg h-full p-6 hover:shadow-md text-left relative ${isCurrentPlan ? "bg-green-50 border-green-500 border-2" : "bg-white/20"}`}
+      className={`border flex flex-col justify-between rounded-xl h-full p-6 transition-all duration-500 text-left relative
+        hover:shadow-2xl hover:-translate-y-2 cursor-default
+        ${isCurrentPlan 
+          ? "bg-gradient-to-b from-green-50 to-white border-green-500 border-2 shadow-xl scale-[1.02]" 
+          : "bg-white hover:shadow-xl"
+        }`}
     >
+      {/* Plan badges */}
       {isCurrentPlan && (
-        <div className="absolute top-0 left-0 bg-green-600 text-white px-3 py-1 rounded-br-lg rounded-tl-lg text-sm font-medium">
+        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-1 
+                      rounded-full text-sm font-medium shadow-md flex items-center gap-1
+                      animate-pulse-soft">
+          <Crown className="w-3 h-3" />
           Current Plan
         </div>
       )}
+      
       {isPopular && !isCurrentPlan && (
-        <div className="absolute top-0 right-0 bg-gray-900 text-white px-2 py-1 rounded-bl-lg rounded-tr-lg">
+        <div className="absolute -top-3 right-4 bg-gray-900 text-white px-3 py-1 rounded-full text-xs font-medium 
+                      shadow-md animate-fade-in">
           Popular
         </div>
       )}
-      <div>
-        <div className="inline-flex items-end">
-          <h1 className="font-extrabold text-3xl">${price}</h1>
+
+      {/* Price */}
+      <div className="mt-2">
+        <div className="flex items-baseline gap-1">
+          <span className="text-2xl font-bold">$</span>
+          <span className="font-extrabold text-4xl transition-all duration-300 hover:scale-105">{price}</span>
+          {price > 0 && (
+            <span className="text-gray-500 text-sm">
+              /{planKey === "yearly" ? "year" : "month"}
+            </span>
+          )}
         </div>
-        <h2 className="font-bold text-xl my-2">{title}</h2>
-        <p>{description}</p>
-        <div className="flex-grow border-t border-gray-400 opacity-25 my-3"></div>
-        <ul>
+        
+        <h2 className="font-bold text-xl mt-3">{title}</h2>
+        <p className="text-gray-600 text-sm mt-1">{description}</p>
+        
+        <div className="border-t border-gray-200 my-4"></div>
+        
+        {/* Features */}
+        <ul className="space-y-3">
           {features.map((feature, index) => (
             <li
               key={index}
-              className="flex flex-row items-center text-gray-700 gap-2 my-2"
+              className="flex items-start gap-3 text-gray-700 group/item"
             >
               <div
-                className={`rounded-full flex items-center justify-center w-4 h-4 mr-2 ${isCurrentPlan ? "bg-green-600" : "bg-gray-900"}`}
+                className={`rounded-full flex items-center justify-center w-5 h-5 flex-shrink-0 mt-0.5 
+                          transition-all duration-300 group-hover/item:scale-110
+                          ${isCurrentPlan ? "bg-green-600" : "bg-gray-900"}`}
               >
-                <Check className="text-white" width={10} height={10} />
+                <Check className="text-white" width={12} height={12} strokeWidth={3} />
               </div>
-              <p>{feature}</p>
+              <span className="text-sm group-hover/item:text-gray-900 transition-colors">{feature}</span>
             </li>
           ))}
         </ul>
       </div>
-      <div>
-        <button
-          onClick={onClick}
-          disabled={isCurrentPlan}
-          className={`py-2 mt-3 rounded-lg w-full ${
-            isCurrentPlan
-              ? "bg-green-600 text-white cursor-default"
-              : "bg-gray-900 text-white hover:bg-gray-800"
-          }`}
+
+      {/* Button */}
+      <div className="mt-6">
+        <Button
+          onClick={handleClick}
+          disabled={buttonConfig.disabled}
+          variant={buttonConfig.variant}
+          className={`w-full py-3 font-medium transition-all duration-300 
+            hover:scale-[1.02] active:scale-[0.98]
+            ${buttonConfig.className}`}
         >
-          {isCurrentPlan ? "Active" : "Select Plan"}
-        </button>
+          {isLoading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              {buttonConfig.text}
+            </>
+          ) : (
+            <>
+              {buttonConfig.icon}
+              {buttonConfig.text}
+            </>
+          )}
+        </Button>
+        
+        {/* Helper text */}
+        {planKey === "free" && hasActiveSubscription && !isCurrentPlan && (
+          <p className="text-xs text-gray-500 text-center mt-2 animate-fade-in">
+            Opens billing portal to cancel subscription
+          </p>
+        )}
+        
+        {(planKey === "monthly" || planKey === "yearly") && !hasActiveSubscription && (
+          <p className="text-xs text-gray-500 text-center mt-2 animate-fade-in">
+            Direct checkout with Stripe
+          </p>
+        )}
       </div>
     </div>
   );
