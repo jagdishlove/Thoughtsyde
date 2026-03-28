@@ -5,19 +5,31 @@ const isProtectedRoute = createRouteMatcher([
   "/projects(.*)",
   "/payments(.*)",
 ]);
-const isWebhookRoute = createRouteMatcher(["/api/stripe/webhook"]);
+
+const isPublicRoute = createRouteMatcher([
+  "/api/stripe/webhook",
+  "/api/stripe/webhook/(.*)",
+  "/",
+  "/landing-page(.*)",
+]);
 
 export default clerkMiddleware((auth, req) => {
-  // Skip auth for webhook routes
-  if (isWebhookRoute(req)) return;
-  if (isProtectedRoute(req)) auth().protect();
+  // Skip auth for public routes (including webhooks)
+  if (isPublicRoute(req)) {
+    console.log(`[MIDDLEWARE] Skipping auth for public route: ${req.url}`);
+    return;
+  }
+  
+  // Protect private routes
+  if (isProtectedRoute(req)) {
+    console.log(`[MIDDLEWARE] Protecting route: ${req.url}`);
+    auth().protect();
+  }
 });
 
 export const config = {
   matcher: [
-    // Exclude Stripe webhook route from Clerk middleware
-    "/((?!.*\\..*|_next|api/stripe/webhook).*)",
-    "/",
-    "/(api|trpc)(.*)",
+    // Skip Next.js internals and all static files
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

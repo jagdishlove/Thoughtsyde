@@ -4,15 +4,18 @@ import { eq } from "drizzle-orm";
 
 export async function createSubscription({
   stripeCustomerId,
+  stripeSubscriptionId,
   planType,
 }: {
   stripeCustomerId: string;
+  stripeSubscriptionId: string;
   planType: "monthly" | "yearly";
 }) {
   await db
     .update(subscriptions)
     .set({
       subscribed: true,
+      stripeSubscriptionId,
       planType,
     })
     .where(eq(subscriptions.stripeCustomerId, stripeCustomerId));
@@ -27,6 +30,7 @@ export async function cancelSubscription({
     .update(subscriptions)
     .set({
       subscribed: false,
+      stripeSubscriptionId: null,
       planType: null,
     })
     .where(eq(subscriptions.stripeCustomerId, stripeCustomerId));
