@@ -143,13 +143,14 @@ function Table({ data }: { data: Feedback[] }) {
   // Export to CSV
   const exportToCSV = () => {
     const headers = ['Name', 'Email', 'Rating', 'Message'];
+    const quote = String.fromCharCode(34);
     const csvContent = [
       headers.join(','),
       ...filteredData.map(f => [
-        '"' + (f.userName || '') + '"',
-        '"' + (f.userEmail || '') + '"',
+        quote + (f.userName || '') + quote,
+        quote + (f.userEmail || '') + quote,
         f.rating || 'N/A',
-        '"' + (f.message || '').replace(/"/g, '""') + '"'
+        quote + (f.message || '').replace(/"/g, quote + quote) + quote
       ].join(','))
     ].join('\n');
 
