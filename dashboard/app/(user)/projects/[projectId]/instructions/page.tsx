@@ -108,7 +108,7 @@ const page = ({ params }: {
               <CardTitle>Complete Example</CardTitle>
             </div>
             <CardDescription>
-              Here's how your HTML should look with both elements
+              Here is how your HTML should look with both elements
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -155,7 +155,7 @@ const page = ({ params }: {
           <CheckCircle className="h-4 w-4 text-green-600" />
           <AlertTitle className="text-green-800">All Set!</AlertTitle>
           <AlertDescription className="text-green-700">
-            Once you've added the code, visit your website to see the feedback button. 
+            Once you have added the code, visit your website to see the feedback button. 
             Test it by submitting a test feedback.
           </AlertDescription>
         </Alert>

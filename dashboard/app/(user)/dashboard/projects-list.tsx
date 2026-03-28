@@ -123,7 +123,7 @@ const ProjectsList = (props: Props) => {
                 </div>
                 <CardTitle className="text-lg">Plan Limit Reached</CardTitle>
                 <CardDescription className="mt-2">
-                  You've used all {projectLimit} projects in your current plan. 
+                  You have used all {projectLimit} projects in your current plan. 
                   Upgrade to create more.
                 </CardDescription>
               </CardHeader>

@@ -96,7 +96,7 @@ const page = async ({ params }: {
                 Ready to Collect Feedback?
               </CardTitle>
               <CardDescription className="text-indigo-700">
-                Your project is set up but hasn't received any feedback yet. 
+                Your project is set up but has not received any feedback yet. 
                 Install the widget on your website to start collecting valuable insights from your users.
               </CardDescription>
             </CardHeader>

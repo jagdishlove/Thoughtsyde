@@ -56,7 +56,7 @@ const page = async ({
             Project Limit Reached
           </AlertTitle>
           <AlertDescription className="text-orange-700">
-            You've used all your free projects. Upgrade to a premium plan to create more projects and unlock all features.
+            You have used all your free projects. Upgrade to a premium plan to create more projects and unlock all features.
           </AlertDescription>
         </Alert>
       )}
