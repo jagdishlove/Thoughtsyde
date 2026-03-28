@@ -146,10 +146,10 @@ function Table({ data }: { data: Feedback[] }) {
     const csvContent = [
       headers.join(','),
       ...filteredData.map(f => [
-        `"${f.userName || ''}"`,
-        `"${f.userEmail || ''}"`,
+        '"' + (f.userName || '') + '"',
+        '"' + (f.userEmail || '') + '"',
         f.rating || 'N/A',
-        `"${(f.message || '').replace(/"/g, '""')}"`
+        '"' + (f.message || '').replace(/"/g, '""') + '"'
       ].join(','))
     ].join('\n');
 
