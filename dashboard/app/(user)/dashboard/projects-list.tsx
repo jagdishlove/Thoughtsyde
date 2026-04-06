@@ -1,6 +1,13 @@
 import { InferSelectModel } from "drizzle-orm";
 import { projects } from "@/db/schema";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { monthlyPlanId, yearlyPlanId } from "@/lib/payments";
@@ -19,11 +26,18 @@ type Props = {
 };
 
 const ProjectsList = (props: Props) => {
-  const { projects, subscribed, planType = "free", projectLimit = 3, currentCount = projects.length } = props;
+  const {
+    projects,
+    subscribed,
+    planType = "free",
+    projectLimit = 3,
+    currentCount = projects.length,
+  } = props;
   const isFreeUser = !subscribed;
   const isAtLimit = currentCount >= projectLimit;
-  const planLabel = subscribed 
-    ? (planType ?? "free").charAt(0).toUpperCase() + (planType ?? "free").slice(1)
+  const planLabel = subscribed
+    ? (planType ?? "free").charAt(0).toUpperCase() +
+      (planType ?? "free").slice(1)
     : "Free";
 
   if (projects.length === 0) {
@@ -41,11 +55,12 @@ const ProjectsList = (props: Props) => {
                   <CardTitle className="text-xl group-hover:text-indigo-700 transition-colors">
                     {project.name}
                   </CardTitle>
-                  <Badge 
-                    variant="secondary" 
-                    className={`badge-smooth ${subscribed 
-                      ? "bg-yellow-100 text-yellow-800" 
-                      : "bg-gray-100 text-gray-700"
+                  <Badge
+                    variant="secondary"
+                    className={`badge-smooth ${
+                      subscribed
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-gray-100 text-gray-700"
                     }`}
                   >
                     {subscribed ? (
@@ -69,8 +84,8 @@ const ProjectsList = (props: Props) => {
               </CardContent>
               <CardFooter>
                 <Link href={`/projects/${project.id}`} className="w-full">
-                  <Button 
-                    className="w-full btn-secondary group/btn" 
+                  <Button
+                    className="w-full btn-secondary group/btn"
                     variant="outline"
                   >
                     <span>View Project</span>
@@ -81,7 +96,7 @@ const ProjectsList = (props: Props) => {
             </Card>
           </li>
         ))}
-        
+
         {/* Show upgrade card when free user is at or near limit */}
         {isFreeUser && (
           <li>
@@ -91,22 +106,24 @@ const ProjectsList = (props: Props) => {
                   <Sparkles className="w-6 h-6 text-indigo-600" />
                 </div>
                 <CardTitle className="text-lg">
-                  {isAtLimit ? "Unlock Unlimited Projects" : "More Projects Available"}
+                  {isAtLimit
+                    ? "Unlock Unlimited Projects"
+                    : "More Projects Available"}
                 </CardTitle>
                 <CardDescription className="mt-2">
-                  {isAtLimit 
-                    ? "You've reached your free limit. Upgrade to create unlimited projects."
-                    : `You can create ${projectLimit - currentCount} more project${projectLimit - currentCount === 1 ? '' : 's'} for free, or upgrade for unlimited.`
-                  }
+                  {isAtLimit
+                    ? "You&apos;ve reached your free limit. Upgrade to create unlimited projects."
+                    : `You can create ${projectLimit - currentCount} more project${projectLimit - currentCount === 1 ? "" : "s"} for free, or upgrade for unlimited.`}
                 </CardDescription>
               </CardHeader>
               <CardFooter className="flex flex-col gap-2">
                 <SubscribeBtn price={monthlyPlanId} />
                 <p className="text-xs text-gray-500 text-center">
-                  Or choose{' '}
+                  Or choose{" "}
                   <Link href="/payments" className="link-smooth text-xs">
                     yearly plan
-                  </Link> for 2 months free
+                  </Link>{" "}
+                  for 2 months free
                 </p>
               </CardFooter>
             </Card>
@@ -123,8 +140,8 @@ const ProjectsList = (props: Props) => {
                 </div>
                 <CardTitle className="text-lg">Plan Limit Reached</CardTitle>
                 <CardDescription className="mt-2">
-                  You have used all {projectLimit} projects in your current plan. 
-                  Upgrade to create more.
+                  You have used all {projectLimit} projects in your current
+                  plan. Upgrade to create more.
                 </CardDescription>
               </CardHeader>
               <CardFooter>
@@ -140,6 +157,6 @@ const ProjectsList = (props: Props) => {
         )}
       </ul>
     </div>
-  )
-}
+  );
+};
 export default ProjectsList;
