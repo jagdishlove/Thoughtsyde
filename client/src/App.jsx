@@ -6,7 +6,7 @@ import { Widget } from "./components/Widget";
 
 function App() {
   const widgetRef = useRef(null);
-  const projectId = "7"; // or from state/props
+  const projectId = null; // or from state/props
 
   useEffect(() => {
     if (widgetRef.current) {

@@ -1,3 +1,4 @@
+"use client";
 import PricingCard from "./pricing-card";
 import { Badge } from "@/components/ui/badge";
 
@@ -8,7 +9,7 @@ export type PricingPlan = {
   isPopular: boolean;
   features: string[];
   planKey: "free" | "monthly" | "yearly";
-}
+};
 
 export const pricingPlans: PricingPlan[] = [
   {
@@ -56,18 +57,18 @@ export const pricingPlans: PricingPlan[] = [
       "2 months free",
     ],
   },
-]
+];
 
 type PricingSectionProps = {
   currentPlan?: string | null;
   hasActiveSubscription?: boolean;
   onManageSubscription?: () => void;
-}
+};
 
-const PricingSection = ({ 
-  currentPlan = "free", 
+const PricingSection = ({
+  currentPlan = "free",
   hasActiveSubscription = false,
-  onManageSubscription 
+  onManageSubscription,
 }: PricingSectionProps) => {
   return (
     <section className="py-20 lg:py-32 bg-white">
@@ -81,19 +82,18 @@ const PricingSection = ({
             Flexible Pricing to Fit Your Needs
           </h2>
           <p className="text-lg text-gray-600">
-            {hasActiveSubscription 
+            {hasActiveSubscription
               ? `You're currently on the ${currentPlan} plan. Switch plans or manage your subscription below.`
-              : "Start free, upgrade when you're ready. No hidden fees, cancel anytime."
-            }
+              : "Start free, upgrade when you're ready. No hidden fees, cancel anytime."}
           </p>
         </div>
 
         {/* Pricing Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {pricingPlans.map((plan, index) => (
-            <PricingCard 
-              key={index} 
-              {...plan} 
+            <PricingCard
+              key={index}
+              {...plan}
               isCurrentPlan={currentPlan === plan.planKey}
               hasActiveSubscription={hasActiveSubscription}
               onManageSubscription={onManageSubscription}
@@ -104,12 +104,13 @@ const PricingSection = ({
         {/* Trust note */}
         <div className="mt-12 text-center">
           <p className="text-sm text-gray-500">
-            💳 Secure payment via Stripe • Cancel anytime • 30-day money-back guarantee
+            💳 Secure payment via Stripe • Cancel anytime • 30-day money-back
+            guarantee
           </p>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
 export default PricingSection;

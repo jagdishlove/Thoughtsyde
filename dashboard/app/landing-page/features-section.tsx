@@ -92,8 +92,7 @@ const FeaturesSection = () => {
                                   group-hover:rotate-3`}>
                     <IconComponent className="w-6 h-6" />
                   </div>
-                  <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-indigo-700 
-                                       transition-colors duration-300">
+                  <CardTitle className="text-lg font-semibold text-gray-900 group-hover:text-indigo-700 transition-colors duration-300">
                     {feature.title}
                   </CardTitle>
                 </CardHeader>
