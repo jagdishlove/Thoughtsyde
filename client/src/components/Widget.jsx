@@ -25,7 +25,7 @@ export const Widget = ({ projectId }) => {
     e.preventDefault();
     const form = e.target;
     const data = {
-      p_project_id: "1",
+      p_project_id: projectId,
       p_user_name: form.name.value,
       p_user_email: form.email.value,
       p_message: form.feedback.value,

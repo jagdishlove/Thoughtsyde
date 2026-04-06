@@ -5,11 +5,18 @@ import "./App.css";
 import { Widget } from "./components/Widget";
 
 function App() {
-  const [count, setCount] = useState(0);
+  const widgetRef = useRef(null);
+  const projectId = "7"; // or from state/props
+
+  useEffect(() => {
+    if (widgetRef.current) {
+      widgetRef.current.setAttribute("project-id", projectId);
+    }
+  }, [projectId]);
 
   return (
     <div>
-      <Widget projectId="1" />{" "}
+      <Widget ref={widgetRef} />{" "}
     </div>
   );
 }
