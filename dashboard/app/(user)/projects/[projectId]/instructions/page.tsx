@@ -187,8 +187,8 @@ const page = ({
               <CardTitle>Next.js Integration</CardTitle>
             </div>
             <CardDescription>
-              Since Next.js doesn't use a traditional index.html file, you have
-              two options:
+              Since Next.js doesn&apos;t use a traditional index.html file, you
+              have two options:
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -239,7 +239,8 @@ const page = ({
                   For client components, dynamically load the script:
                 </p>
                 <div className="bg-slate-900 p-3 rounded-lg relative group">
-                  <code className="text-green-400 text-xs font-mono block break-words whitespace-pre-wrap">{`"use client"
+                  <code className="text-green-400 text-xs font-mono block break-words whitespace-pre-wrap">
+                    {`"use client"
 import { useEffect } from 'react'
 
 export default function MyPage() {
@@ -257,7 +258,8 @@ export default function MyPage() {
   return (
     <my-widget project-id="${params.projectId}"></my-widget>
   )
-}`}</code>
+}`}
+                  </code>
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <CopyBtn
                       text={`"use client"
