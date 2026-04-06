@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
+const widgetUrl = process.env.WIDGET_URL;
+
 const page = ({
   params,
 }: {
@@ -26,10 +28,9 @@ const page = ({
   };
 }) => {
   if (!params.projectId) return <div>Invalid Project ID</div>;
-  if (!process.env.WIDGET_URL) return <div>Missing WIDGET_URL</div>;
 
   const widgetCode = `<my-widget project-id="${params.projectId}"></my-widget>`;
-  const scriptCode = `<script src="${process.env.WIDGET_URL}/widget.umd.js"></script>`;
+  const scriptCode = `<script src="${widgetUrl}/widget.umd.js"></script>`;
   const fullCode = `${widgetCode}\n${scriptCode}`;
 
   return (
@@ -175,6 +176,166 @@ const page = ({
             </ul>
           </AlertDescription>
         </Alert>
+
+        {/* Next.js Integration */}
+        <Card className="overflow-x-auto">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold">
+                <Code className="w-4 h-4" />
+              </div>
+              <CardTitle>Next.js Integration</CardTitle>
+            </div>
+            <CardDescription>
+              Since Next.js doesn't use a traditional index.html file, you have
+              two options:
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {/* Option 1: Script Component */}
+              <div className="border rounded-lg p-4">
+                <h4 className="font-semibold text-gray-900 mb-2">
+                  Option 1: Using Next.js Script Component (Recommended)
+                </h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  Use the Next.js Script component to load the widget script
+                  optimally:
+                </p>
+                <div className="bg-slate-900 p-3 rounded-lg relative group">
+                  <code className="text-green-400 text-xs font-mono block break-words whitespace-pre-wrap">{`import Script from 'next/script'
+
+// Add this to your page component:
+<Script 
+  src="${widgetUrl}/widget.umd.js" 
+  strategy="afterInteractive" 
+/>
+
+// Add the widget element where you want it to appear:
+<my-widget project-id="${params.projectId}"></my-widget>`}</code>
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <CopyBtn
+                      text={`import Script from 'next/script'
+
+// Add this to your page component:
+<Script 
+  src="${widgetUrl}/widget.umd.js" 
+  strategy="afterInteractive" 
+/>
+
+// Add the widget element where you want it to appear:
+<my-widget project-id="${params.projectId}"></my-widget>`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Option 2: useEffect */}
+              <div className="border rounded-lg p-4">
+                <h4 className="font-semibold text-gray-900 mb-2">
+                  Option 2: Using useEffect (Client Components Only)
+                </h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  For client components, dynamically load the script:
+                </p>
+                <div className="bg-slate-900 p-3 rounded-lg relative group">
+                  <code className="text-green-400 text-xs font-mono block break-words whitespace-pre-wrap">{`"use client"
+import { useEffect } from 'react'
+
+export default function MyPage() {
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = "${widgetUrl}/widget.umd.js"
+    script.async = true
+    document.body.appendChild(script)
+    
+    return () => {
+      document.body.removeChild(script)
+    }
+  }, [])
+  
+  return (
+    <my-widget project-id="${params.projectId}"></my-widget>
+  )
+}`}</code>
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <CopyBtn
+                      text={`"use client"
+import { useEffect } from 'react'
+
+export default function MyPage() {
+  useEffect(() => {
+    const script = document.createElement('script')
+    script.src = "${widgetUrl}/widget.umd.js"
+    script.async = true
+    document.body.appendChild(script)
+    
+    return () => {
+      document.body.removeChild(script)
+    }
+  }, [])
+  
+  return (
+    <my-widget project-id="${params.projectId}"></my-widget>
+  )
+}`}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Option 3: Layout */}
+              <div className="border rounded-lg p-4">
+                <h4 className="font-semibold text-gray-900 mb-2">
+                  Option 3: Add in Root Layout
+                </h4>
+                <p className="text-sm text-gray-600 mb-3">
+                  Add the widget globally in your app/layout.tsx:
+                </p>
+                <div className="bg-slate-900 p-3 rounded-lg relative group">
+                  <code className="text-green-400 text-xs font-mono block break-words whitespace-pre-wrap">{`// app/layout.tsx (Server Component)
+import Script from 'next/script'
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <my-widget project-id="${params.projectId}"></my-widget>
+        <Script 
+          src="${widgetUrl}/widget.umd.js" 
+          strategy="afterInteractive" 
+        />
+      </body>
+    </html>
+  )
+}`}</code>
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <CopyBtn
+                      text={`// app/layout.tsx (Server Component)
+import Script from 'next/script'
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <my-widget project-id="${params.projectId}"></my-widget>
+        <Script 
+          src="${widgetUrl}/widget.umd.js" 
+          strategy="afterInteractive" 
+        />
+      </body>
+    </html>
+  )
+}`}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Success/Verification Alert */}
         <Alert className="bg-green-50 border-green-200 text-xs sm:text-sm">
