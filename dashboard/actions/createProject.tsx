@@ -3,7 +3,7 @@ import { db } from "@/db";
 import { auth } from "@clerk/nextjs/server";
 import { projects, subscriptions } from "@/db/schema";
 import { redirect } from "next/navigation";
-import { eq, count } from "drizzle-orm";
+import { eq, count, and } from "drizzle-orm";
 import { getProjectLimit } from "@/lib/payments";
 
 export async function createProject(formData: FormData) {
@@ -17,8 +17,7 @@ export async function createProject(formData: FormData) {
   const projectCount = await db
     .select({ count: count() })
     .from(projects)
-    .where(eq(projects.userId, userId))
-    .where(eq(projects.isArchived, false));
+    .where(and(eq(projects.userId, userId), eq(projects.isArchived, false)));
 
   const currentProjectCount = projectCount[0]?.count || 0;
 

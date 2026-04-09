@@ -1,7 +1,7 @@
 import NewProjBtn from "@/components/new-proj";
 import { db } from "@/db";
 import { projects, subscriptions } from "@/db/schema";
-import { eq, count } from "drizzle-orm";
+import { eq, count, and } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import ProjectsList from "./projects-list";
 import { getSubscription } from "@/actions/userSubscriptions";
@@ -42,15 +42,13 @@ export default async function Page() {
   const activeProjects = await db
     .select()
     .from(projects)
-    .where(eq(projects.userId, userId))
-    .where(eq(projects.isArchived, false));
+    .where(and(eq(projects.userId, userId), eq(projects.isArchived, false)));
 
   // Get archived projects
   const archivedProjects = await db
     .select()
     .from(projects)
-    .where(eq(projects.userId, userId))
-    .where(eq(projects.isArchived, true));
+    .where(and(eq(projects.userId, userId), eq(projects.isArchived, true)));
 
   const subscription = await getSubscription({ userId });
 
