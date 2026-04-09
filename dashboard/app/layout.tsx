@@ -8,6 +8,7 @@ import {
 import PageHeader from "@/components/page-header";
 import Footer from "@/app/landing-page/footer";
 import { ToasterProvider } from "@/components/ui/toaster";
+import "./globals.css";
 
 export const metadata = {
   title: "Feedloop - Collect Customer Feedback Seamlessly",
