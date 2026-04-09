@@ -18,13 +18,25 @@ export async function POST(req: Request) {
     where: eq(subscriptions.userId, userId),
   });
   let customer;
-  if (userSubscription) {
-    // get the stripe customer
-    customer = {
-      id: userSubscription.stripeCustomerId,
-    };
-  } else {
-    // create user subscription
+
+  if (userSubscription?.stripeCustomerId) {
+    try {
+      await stripe.customers.retrieve(userSubscription.stripeCustomerId);
+      customer = { id: userSubscription.stripeCustomerId };
+    } catch (stripeError: any) {
+      if (stripeError.code === 'resource_missing') {
+        console.log(`[CHECKOUT] Stripe customer ${userSubscription.stripeCustomerId} not found, creating new one`);
+        await db.update(subscriptions)
+          .set({ stripeCustomerId: null })
+          .where(eq(subscriptions.userId, userId));
+        customer = null;
+      } else {
+        throw stripeError;
+      }
+    }
+  }
+
+  if (!customer) {
     const customerData: {
       metadata: {
         dbId: string;
@@ -39,10 +51,16 @@ export async function POST(req: Request) {
 
     customer = { id: response.id };
 
-    await db.insert(subscriptions).values({
-      userId,
-      stripeCustomerId: customer.id,
-    });
+    if (userSubscription) {
+      await db.update(subscriptions)
+        .set({ stripeCustomerId: customer.id })
+        .where(eq(subscriptions.userId, userId));
+    } else {
+      await db.insert(subscriptions).values({
+        userId,
+        stripeCustomerId: customer.id,
+      });
+    }
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3001";
