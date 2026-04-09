@@ -1,5 +1,6 @@
 import ReactDom from "react-dom/client";
 import { Widget } from "./components/Widget";
+import globalStyles from "./index.css?inline";
 
 export const normalizeAttribute = (attribute) => {
   return attribute.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -12,6 +13,10 @@ class WidgetWebComponent extends HTMLElement {
   }
 
   connectedCallback() {
+    const style = document.createElement("style");
+    style.textContent = globalStyles;
+    this.shadowRoot.appendChild(style);
+    
     const props = this.getPropsFromAttributes();
     const root = ReactDom.createRoot(this.shadowRoot);
     root.render(<Widget {...props} />);

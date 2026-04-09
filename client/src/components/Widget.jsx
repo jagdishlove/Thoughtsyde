@@ -3,13 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import tailwindStyles from "../index.css?inline";
 import supabase from "../supabaseClient";
 
 export const Widget = ({ projectId }) => {
@@ -40,10 +38,7 @@ export const Widget = ({ projectId }) => {
   };
 
   return (
-    <>
-      <style>{tailwindStyles}</style>
-
-      <div className="widget fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-50">
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -55,7 +50,6 @@ export const Widget = ({ projectId }) => {
             </Button>
           </PopoverTrigger>
           <PopoverContent className="rounded-xl bg-background p-6 shadow-2xl w-full max-w-md border border-muted bg-white">
-            <style>{tailwindStyles}</style>
             {submitted ? (
               <div>
                 <h3 className="text-lg font-bold">
@@ -129,7 +123,6 @@ export const Widget = ({ projectId }) => {
           </PopoverContent>
         </Popover>
       </div>
-    </>
   );
 };
 
