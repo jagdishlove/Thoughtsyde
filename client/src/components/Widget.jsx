@@ -44,12 +44,16 @@ export const Widget = ({ projectId }) => {
 
   const checkExistingSubmission = async (email) => {
     try {
+      console.log("Checking for existing submission:", { email, projectId });
+      
       const { data, error } = await supabase
         .from("feedbacks")
         .select("id")
         .eq("user_email", email)
         .eq("project_id", projectId)
         .maybeSingle();
+      
+      console.log("Check result:", data, error);
       
       if (error) {
         console.error("Supabase query error:", error);
@@ -91,8 +95,11 @@ export const Widget = ({ projectId }) => {
       p_rating: rating,
     };
 
+    console.log("Submitting feedback:", data);
+
     const { data: returnedData, error } = await supabase.rpc("add_feedback", data);
     
+    console.log("RPC result:", returnedData, error);
     setIsLoading(false);
 
     if (error) {
@@ -100,10 +107,8 @@ export const Widget = ({ projectId }) => {
       return;
     }
 
-    if (returnedData) {
-      localStorage.setItem(storageKey, "true");
-      setSubmitted(true);
-    }
+    localStorage.setItem(storageKey, "true");
+    setSubmitted(true);
   };
 
   return (
