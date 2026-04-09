@@ -43,7 +43,7 @@ export const Widget = ({ projectId }) => {
     <>
       <style>{tailwindStyles}</style>
 
-      <div className="widget fixed bottom-4 right-4 z-50 bg-white">
+      <div className="widget fixed bottom-4 right-4 z-50">
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <Button
