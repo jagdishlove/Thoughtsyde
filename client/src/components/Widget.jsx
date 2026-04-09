@@ -25,8 +25,8 @@ export const Widget = ({ projectId }) => {
     const { data, error } = await supabase
       .from("feedbacks")
       .select("id")
-      .eq("p_user_email", email)
-      .eq("p_project_id", projectId)
+      .eq("user_email", email)
+      .eq("project_id", projectId)
       .maybeSingle();
     return !!data;
   };
