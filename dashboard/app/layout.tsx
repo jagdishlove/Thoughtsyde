@@ -5,7 +5,6 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
-import "./globals.css";
 import PageHeader from "@/components/page-header";
 import Footer from "@/app/landing-page/footer";
 import { ToasterProvider } from "@/components/ui/toaster";

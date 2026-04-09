@@ -14,7 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { archiveProject, unarchiveProject } from "@/actions/archiveProject";
 import {
   Archive,
-  Unarchive,
+  ArchiveRestore,
   Package,
   ArrowRight,
   AlertCircle,
@@ -140,7 +140,7 @@ export default function ArchiveManager({
                     {loadingId === project.id ? (
                       <span className="animate-spin">⟳</span>
                     ) : (
-                      <Unarchive className="w-4 h-4" />
+                      <ArchiveRestore className="w-4 h-4" />
                     )}
                   </Button>
                 </div>
