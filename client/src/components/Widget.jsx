@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import supabase from "../supabaseClient";
 
 export const Widget = ({ projectId }) => {
@@ -6,25 +6,64 @@ export const Widget = ({ projectId }) => {
   const [submitted, setSubmitted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [alreadySubmitted, setAlreadySubmitted] = useState(false);
+
+  const storageKey = `feedback_submitted_${projectId || "default"}`;
+
+  useEffect(() => {
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      setAlreadySubmitted(true);
+    }
+  }, [storageKey]);
 
   const onSelectStar = (index) => {
     setRating(index + 1);
   };
 
+  const checkExistingSubmission = async (email) => {
+    const { data, error } = await supabase
+      .from("feedbacks")
+      .select("id")
+      .eq("p_user_email", email)
+      .eq("p_project_id", projectId)
+      .maybeSingle();
+    return !!data;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
     const form = e.target;
+    const email = form.email.value;
+
+    if (alreadySubmitted) {
+      setIsLoading(false);
+      return;
+    }
+
+    const alreadyExists = await checkExistingSubmission(email);
+    if (alreadyExists) {
+      localStorage.setItem(storageKey, "true");
+      setAlreadySubmitted(true);
+      setIsLoading(false);
+      return;
+    }
+
     const data = {
       p_project_id: projectId,
       p_user_name: form.name.value,
-      p_user_email: form.email.value,
+      p_user_email: email,
       p_message: form.feedback.value,
       p_rating: rating,
     };
+
     const { data: returnedData, error } = await supabase.rpc("add_feedback", data);
     setIsLoading(false);
+
     if (!error) {
+      localStorage.setItem(storageKey, "true");
       setSubmitted(true);
     }
     console.log(returnedData);
@@ -45,6 +84,11 @@ export const Widget = ({ projectId }) => {
             <div className="thank-you">
               <h3>Thank you for your feedback!</h3>
               <p>We appreciate your feedback. It helps us improve our product and provide better service to our customers.</p>
+            </div>
+          ) : alreadySubmitted ? (
+            <div className="thank-you">
+              <h3>Feedback Already Submitted</h3>
+              <p>You've already submitted feedback for this project. Thank you for your participation!</p>
             </div>
           ) : (
             <form className="widget-form" onSubmit={handleSubmit}>
@@ -84,7 +128,7 @@ export const Widget = ({ projectId }) => {
               </div>
 
               <button className="submit-btn" type="submit" disabled={isLoading}>
-                {isLoading ? "Submitting..." : "Submit Feedback"}
+                {isLoading ? "Checking..." : "Submit Feedback"}
               </button>
             </form>
           )}
