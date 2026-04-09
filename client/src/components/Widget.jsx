@@ -22,7 +22,9 @@ export const Widget = ({ projectId }) => {
     const handleClickOutside = (event) => {
       if (widgetRef.current && isOpen) {
         const path = event.composedPath();
-        const isInsideWidget = path.some((element) => widgetRef.current.contains(element));
+        const isInsideWidget = path.some(
+          (element) => element instanceof Node && widgetRef.current.contains(element)
+        );
         if (!isInsideWidget) {
           setIsOpen(false);
         }
