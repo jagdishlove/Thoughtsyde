@@ -1,4 +1,4 @@
-'use client';
+"use client";
 import { useState } from "react";
 import { InferSelectModel } from "drizzle-orm";
 import { projects } from "@/db/schema";
@@ -12,9 +12,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { archiveProject, unarchiveProject } from "@/actions/archiveProject";
-import { Archive, Unarchive, Package, ArrowRight, AlertCircle } from "lucide-react";
+import {
+  Archive,
+  Unarchive,
+  Package,
+  ArrowRight,
+  AlertCircle,
+} from "lucide-react";
 import Link from "next/link";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "./ui/toast-provider";
 
 type Project = InferSelectModel<typeof projects>;
 
@@ -39,10 +45,17 @@ export default function ArchiveManager({
     setLoadingId(projectId);
     try {
       await archiveProject(projectId);
-      toast({ title: "Project archived", description: "You can unarchive it anytime from the archived section." });
+      toast({
+        title: "Project archived",
+        description: "You can unarchive it anytime from the archived section.",
+      });
       setIsOpen(false);
     } catch (e) {
-      toast({ title: "Error", description: "Failed to archive project", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Failed to archive project",
+        variant: "destructive",
+      });
     }
     setLoadingId(null);
   };
@@ -58,11 +71,18 @@ export default function ArchiveManager({
           variant: "destructive",
         });
       } else {
-        toast({ title: "Project restored", description: "Your project is now active again." });
+        toast({
+          title: "Project restored",
+          description: "Your project is now active again.",
+        });
         setIsOpen(false);
       }
     } catch (e) {
-      toast({ title: "Error", description: "Failed to unarchive project", variant: "destructive" });
+      toast({
+        title: "Error",
+        description: "Failed to unarchive project",
+        variant: "destructive",
+      });
     }
     setLoadingId(null);
   };
@@ -90,11 +110,18 @@ export default function ArchiveManager({
               <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-gray-900 truncate">{project.name}</h4>
-                    <p className="text-sm text-gray-500 truncate mt-1">{project.url}</p>
+                    <h4 className="font-medium text-gray-900 truncate">
+                      {project.name}
+                    </h4>
+                    <p className="text-sm text-gray-500 truncate mt-1">
+                      {project.url}
+                    </p>
                     {project.archivedAt && (
                       <p className="text-xs text-gray-400 mt-1">
-                        Archived {new Date(project.archivedAt * 1000).toLocaleDateString()}
+                        Archived{" "}
+                        {new Date(
+                          project.archivedAt * 1000,
+                        ).toLocaleDateString()}
                       </p>
                     )}
                   </div>
@@ -102,7 +129,10 @@ export default function ArchiveManager({
                     size="sm"
                     variant="outline"
                     onClick={() => handleUnarchive(project.id)}
-                    disabled={loadingId === project.id || (!canUnarchive && archivedProjects.length > 0)}
+                    disabled={
+                      loadingId === project.id ||
+                      (!canUnarchive && archivedProjects.length > 0)
+                    }
                     className="shrink-0"
                   >
                     {loadingId === project.id ? (

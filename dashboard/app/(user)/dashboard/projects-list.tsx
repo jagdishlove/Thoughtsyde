@@ -17,8 +17,8 @@ import { Lock, Crown, Sparkles, CreditCard, ArrowRight, Archive, GripVertical, S
 import { Badge } from "@/components/ui/badge";
 import SubscribeBtn from "../payments/subscribe-btn";
 import { archiveProject } from "@/actions/archiveProject";
-import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/components/ui/toast-provider";
 
 type Project = InferSelectModel<typeof projects>;
 
