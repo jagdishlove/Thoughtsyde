@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { count, eq as drizzleEq } from "drizzle-orm";
 import { projects } from "@/db/schema";
+import { monthlyPlanId, yearlyPlanId } from "@/lib/payments";
 
 const page = async ({
   searchParams,
@@ -141,7 +142,7 @@ const page = async ({
             {hasActiveSubscription ? (
               <ManageSubscription />
             ) : (
-              <Link href="/payments/subscribe?plan=monthly">
+              <Link href="#pricing">
                 <Button className="btn-primary w-full">
                   <Crown className="w-4 h-4 mr-2" />
                   Upgrade Now
@@ -153,8 +154,9 @@ const page = async ({
       </div>
 
       {/* Pricing Section */}
-      <div className="py-8">
+      <div className="py-8" id="pricing">
         <PricingSection 
+          isAuthenticated={true}
           currentPlan={currentPlan} 
           hasActiveSubscription={hasActiveSubscription}
         />
