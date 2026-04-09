@@ -20,15 +20,17 @@ export const Widget = ({ projectId }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (widgetRef.current && !widgetRef.current.contains(event.target)) {
-        setIsOpen(false);
+      if (widgetRef.current && isOpen) {
+        const path = event.composedPath();
+        const isInsideWidget = path.some((element) => widgetRef.current.contains(element));
+        if (!isInsideWidget) {
+          setIsOpen(false);
+        }
       }
     };
 
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
