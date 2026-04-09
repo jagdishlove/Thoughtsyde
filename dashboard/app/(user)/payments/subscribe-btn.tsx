@@ -4,6 +4,7 @@ import { useState } from "react";
 import { getStripe } from "@/lib/stripe-client";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 type Props = {
   price: string
@@ -12,7 +13,6 @@ type Props = {
 const SubscribeBtn = ({ price }: Props) => {
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleCheckout = async (price: string) => {
     setLoading(true);
@@ -32,13 +32,11 @@ const SubscribeBtn = ({ price }: Props) => {
       }
     }
     catch (error) {
-      console.error(error);
+      toast.error("Something went wrong", {
+        description: "Please try again later.",
+      });
     }
     setLoading(false);
-  }
-
-  if (error) {
-    return <p>{error}</p>
   }
 
   return (

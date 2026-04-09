@@ -20,7 +20,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
-import { useToast } from "./ui/toast-provider";
+import { useToast } from "@/hooks/useToast";
 
 type Project = InferSelectModel<typeof projects>;
 
@@ -48,13 +48,14 @@ export default function ArchiveManager({
       toast({
         title: "Project archived",
         description: "You can unarchive it anytime from the archived section.",
+        variant: "success",
       });
       setIsOpen(false);
     } catch (e) {
       toast({
         title: "Error",
         description: "Failed to archive project",
-        variant: "destructive",
+        variant: "error",
       });
     }
     setLoadingId(null);
@@ -68,12 +69,13 @@ export default function ArchiveManager({
         toast({
           title: "Cannot unarchive",
           description: `You've reached your ${planType} plan limit of ${projectLimit} projects. Archive another project or upgrade.`,
-          variant: "destructive",
+          variant: "error",
         });
       } else {
         toast({
           title: "Project restored",
           description: "Your project is now active again.",
+          variant: "success",
         });
         setIsOpen(false);
       }
@@ -81,7 +83,7 @@ export default function ArchiveManager({
       toast({
         title: "Error",
         description: "Failed to unarchive project",
-        variant: "destructive",
+        variant: "error",
       });
     }
     setLoadingId(null);

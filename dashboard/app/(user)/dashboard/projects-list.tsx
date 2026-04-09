@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import SubscribeBtn from "../payments/subscribe-btn";
 import { archiveProject } from "@/actions/archiveProject";
 import { cn } from "@/lib/utils";
-import { useToast } from "@/components/ui/toast-provider";
+import { useToast } from "@/hooks/useToast";
 
 type Project = InferSelectModel<typeof projects>;
 
@@ -66,13 +66,14 @@ const ProjectsList = (props: Props) => {
       toast({
         title: "Project archived",
         description: `"${projectName}" has been moved to archives.`,
+        variant: "success",
       });
       window.location.reload();
     } catch (e) {
       toast({
         title: "Error",
         description: "Failed to archive project",
-        variant: "destructive",
+        variant: "error",
       });
     }
     setArchivingId(null);
