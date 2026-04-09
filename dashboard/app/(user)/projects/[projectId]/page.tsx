@@ -24,19 +24,31 @@ const page = async ({ params }: {
   const isNumericId = /^\d+$/.test(params.projectId);
   
   let project;
-  if (isNumericId) {
-    const numericId = parseInt(params.projectId, 10);
-    const projectList = await db.query.projects.findMany({
-      where: eq(dbProjects.id, numericId),
-      with: { feedbacks: true }
-    });
-    project = projectList[0];
-  } else {
-    const projectList = await db.query.projects.findMany({
-      where: eq(dbProjects.uuid, params.projectId),
-      with: { feedbacks: true }
-    });
-    project = projectList[0];
+  try {
+    if (isNumericId) {
+      const numericId = parseInt(params.projectId, 10);
+      const projectList = await db.query.projects.findMany({
+        where: eq(dbProjects.id, numericId),
+        with: { feedbacks: true }
+      });
+      project = projectList[0];
+    } else {
+      const projectList = await db.query.projects.findMany({
+        where: eq(dbProjects.uuid, params.projectId),
+        with: { feedbacks: true }
+      });
+      project = projectList[0];
+    }
+  } catch (error) {
+    return (
+      <div className="section-container py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Project Not Found</h1>
+          <p className="text-gray-600 mb-4">This project doesn't exist or has been deleted.</p>
+          <Link href="/dashboard" className="text-indigo-600 hover:text-indigo-800">Go to Dashboard</Link>
+        </div>
+      </div>
+    );
   }
 
   if (!project) {

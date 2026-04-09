@@ -40,17 +40,27 @@ const page = async ({
   const isNumericId = /^\d+$/.test(params.projectId);
   
   let project;
-  if (isNumericId) {
-    const numericId = parseInt(params.projectId, 10);
-    const projectList = await db.query.projects.findMany({
-      where: eq(dbProjects.id, numericId),
-    });
-    project = projectList[0];
-  } else {
-    const projectList = await db.query.projects.findMany({
-      where: eq(dbProjects.uuid, params.projectId),
-    });
-    project = projectList[0];
+  try {
+    if (isNumericId) {
+      const numericId = parseInt(params.projectId, 10);
+      const projectList = await db.query.projects.findMany({
+        where: eq(dbProjects.id, numericId),
+      });
+      project = projectList[0];
+    } else {
+      const projectList = await db.query.projects.findMany({
+        where: eq(dbProjects.uuid, params.projectId),
+      });
+      project = projectList[0];
+    }
+  } catch (error) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Project Not Found</h1>
+        <p className="text-gray-600 mb-4">This project doesn't exist or has been deleted.</p>
+        <Link href="/dashboard" className="text-indigo-600 hover:text-indigo-800">Go to Dashboard</Link>
+      </div>
+    );
   }
 
   if (!project) {
@@ -62,7 +72,7 @@ const page = async ({
       </div>
     );
   }
-  
+
   if (project.userId !== userId) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
