@@ -1,5 +1,5 @@
 import { db } from "@/db";
-import { eq } from "drizzle-orm";
+import { eq, or, isNull } from "drizzle-orm";
 import { projects as dbProjects } from "@/db/schema";
 import Link from "next/link";
 import { Globe, ChevronLeft, Code, Settings, BarChart3, MessageSquare, ExternalLink, Sparkles } from 'lucide-react';
@@ -8,22 +8,45 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AnimatedSection } from "@/components/animated-section";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 const page = async ({ params }: {
   params: {
     projectId: string
   }
 }) => {
+  const { userId } = await auth();
+  if (!userId) return redirect("/sign-in");
+
   if (!params.projectId) return (<div>Invalid Project ID</div>);
 
-  const projects = await db.query.projects.findMany({
-    where: (eq(dbProjects.id, parseInt(params.projectId))),
-    with: {
-      feedbacks: true
-    }
-  });
+  const isNumericId = /^\d+$/.test(params.projectId);
+  
+  let project;
+  if (isNumericId) {
+    const numericId = parseInt(params.projectId, 10);
+    const projectList = await db.query.projects.findMany({
+      where: eq(dbProjects.id, numericId),
+      with: { feedbacks: true }
+    });
+    project = projectList[0];
+  } else {
+    const projectList = await db.query.projects.findMany({
+      where: eq(dbProjects.uuid, params.projectId),
+      with: { feedbacks: true }
+    });
+    project = projectList[0];
+  }
 
-  const project = projects[0];
+  if (!project) {
+    return redirect("/dashboard?error=not_found");
+  }
+  
+  if (project.userId !== userId) {
+    return redirect("/dashboard?error=unauthorized");
+  }
+
   const feedbackCount = project.feedbacks?.length || 0;
 
   return (

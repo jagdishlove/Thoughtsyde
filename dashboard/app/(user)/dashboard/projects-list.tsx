@@ -83,7 +83,7 @@ const ProjectsList = (props: Props) => {
                 <p className="text-sm text-gray-500 truncate">{project.url}</p>
               </CardContent>
               <CardFooter>
-                <Link href={`/projects/${project.id}`} className="w-full">
+                <Link href={`/projects/${project.uuid || project.id}`} className="w-full">
                   <Button
                     className="w-full btn-secondary group/btn"
                     variant="outline"

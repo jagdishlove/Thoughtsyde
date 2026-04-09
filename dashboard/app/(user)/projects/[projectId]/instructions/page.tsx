@@ -17,19 +17,51 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { db } from "@/db";
+import { eq } from "drizzle-orm";
+import { projects as dbProjects } from "@/db/schema";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 const widgetUrl = process.env.WIDGET_URL;
 
-const page = ({
+const page = async ({
   params,
 }: {
   params: {
     projectId: string;
   };
 }) => {
+  const { userId } = await auth();
+  if (!userId) return redirect("/sign-in");
+
   if (!params.projectId) return <div>Invalid Project ID</div>;
 
-  const widgetCode = `<my-widget project-id="${params.projectId}"></my-widget>`;
+  const isNumericId = /^\d+$/.test(params.projectId);
+  
+  let project;
+  if (isNumericId) {
+    const numericId = parseInt(params.projectId, 10);
+    const projectList = await db.query.projects.findMany({
+      where: eq(dbProjects.id, numericId),
+    });
+    project = projectList[0];
+  } else {
+    const projectList = await db.query.projects.findMany({
+      where: eq(dbProjects.uuid, params.projectId),
+    });
+    project = projectList[0];
+  }
+
+  if (!project || project.userId !== userId) {
+    return redirect("/dashboard?error=unauthorized");
+  }
+
+  const projectIdForWidget = isNumericId && project.uuid 
+    ? project.uuid 
+    : (isNumericId ? params.projectId : project.uuid || '');
+
+  const widgetCode = `<my-widget project-id="${projectIdForWidget}"></my-widget>`;
   const scriptCode = `<script src="${widgetUrl}/widget.umd.js"></script>`;
   const fullCode = `${widgetCode}\n${scriptCode}`;
 
