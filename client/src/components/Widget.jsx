@@ -84,11 +84,11 @@ export const Widget = ({ projectId }) => {
     }
 
     const data = {
-      project_id: projectId,
-      user_name: form.name.value,
-      user_email: email,
-      message: form.feedback.value,
-      rating: rating,
+      p_project_id: projectId,
+      p_user_name: form.name.value,
+      p_user_email: email,
+      p_message: form.feedback.value,
+      p_rating: rating,
     };
 
     const { data: returnedData, error } = await supabase.rpc("add_feedback", data);
