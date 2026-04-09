@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import supabase from "../supabaseClient";
 
 export const Widget = ({ projectId }) => {
@@ -7,6 +7,7 @@ export const Widget = ({ projectId }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
+  const widgetRef = useRef(null);
 
   const storageKey = `feedback_submitted_${projectId || "default"}`;
 
@@ -17,33 +18,62 @@ export const Widget = ({ projectId }) => {
     }
   }, [storageKey]);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (widgetRef.current && !widgetRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen]);
+
   const onSelectStar = (index) => {
     setRating(index + 1);
   };
 
   const checkExistingSubmission = async (email) => {
-    const { data, error } = await supabase
-      .from("feedbacks")
-      .select("id")
-      .eq("user_email", email)
-      .eq("project_id", projectId)
-      .maybeSingle();
-    return !!data;
+    try {
+      const { data, error } = await supabase
+        .from("feedbacks")
+        .select("id")
+        .eq("user_email", email)
+        .eq("project_id", projectId)
+        .maybeSingle();
+      
+      if (error) {
+        console.error("Supabase query error:", error);
+        return false;
+      }
+      
+      return !!data;
+    } catch (err) {
+      console.error("Check failed:", err);
+      return false;
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-
-    const form = e.target;
-    const email = form.email.value;
-
+    
     if (alreadySubmitted) {
-      setIsLoading(false);
       return;
     }
 
+    setIsLoading(true);
+    const form = e.target;
+    const email = form.email.value;
+
     const alreadyExists = await checkExistingSubmission(email);
+    
     if (alreadyExists) {
       localStorage.setItem(storageKey, "true");
       setAlreadySubmitted(true);
@@ -52,25 +82,30 @@ export const Widget = ({ projectId }) => {
     }
 
     const data = {
-      p_project_id: projectId,
-      p_user_name: form.name.value,
-      p_user_email: email,
-      p_message: form.feedback.value,
-      p_rating: rating,
+      project_id: projectId,
+      user_name: form.name.value,
+      user_email: email,
+      message: form.feedback.value,
+      rating: rating,
     };
 
     const { data: returnedData, error } = await supabase.rpc("add_feedback", data);
+    
     setIsLoading(false);
 
-    if (!error) {
+    if (error) {
+      console.error("Submit error:", error);
+      return;
+    }
+
+    if (returnedData) {
       localStorage.setItem(storageKey, "true");
       setSubmitted(true);
     }
-    console.log(returnedData);
   };
 
   return (
-    <>
+    <div ref={widgetRef}>
       <button className="widget-btn" onClick={() => setIsOpen(!isOpen)}>
         <svg className="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
@@ -88,7 +123,7 @@ export const Widget = ({ projectId }) => {
           ) : alreadySubmitted ? (
             <div className="thank-you">
               <h3>Feedback Already Submitted</h3>
-              <p>You've already submitted feedback for this project. Thank you for your participation!</p>
+              <p>You have already submitted feedback for this project. Thank you!</p>
             </div>
           ) : (
             <form className="widget-form" onSubmit={handleSubmit}>
@@ -134,6 +169,6 @@ export const Widget = ({ projectId }) => {
           )}
         </div>
       )}
-    </>
+    </div>
   );
 };
