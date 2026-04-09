@@ -8,6 +8,7 @@ import {
 import "./globals.css";
 import PageHeader from "@/components/page-header";
 import Footer from "@/app/landing-page/footer";
+import { ToastProvider } from "@/components/ui/toast-provider";
 
 export const metadata = {
   title: "Feedloop - Collect Customer Feedback Seamlessly",
@@ -29,9 +30,11 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className="scroll-smooth">
         <body className="antialiased min-h-screen flex flex-col bg-white">
-          <PageHeader />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <ToastProvider>
+            <PageHeader />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </ToastProvider>
         </body>
       </html>
     </ClerkProvider>

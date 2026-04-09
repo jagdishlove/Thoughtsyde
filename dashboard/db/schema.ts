@@ -8,6 +8,8 @@ export const projects = pgTable("projects", {
   description: text("description"),
   url: text("url"),
   userId: varchar("user_id"),
+  isArchived: boolean("is_archived").default(false),
+  archivedAt: integer("archived_at"), // Unix timestamp
 });
 
 export const projectsRelations = relations(projects, ({ many }) => ({

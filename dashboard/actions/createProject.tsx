@@ -13,11 +13,12 @@ export async function createProject(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  // Check user's current project count
+  // Check user's current project count (exclude archived)
   const projectCount = await db
     .select({ count: count() })
     .from(projects)
-    .where(eq(projects.userId, userId));
+    .where(eq(projects.userId, userId))
+    .where(eq(projects.isArchived, false));
 
   const currentProjectCount = projectCount[0]?.count || 0;
 
