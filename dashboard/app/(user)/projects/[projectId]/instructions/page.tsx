@@ -53,8 +53,24 @@ const page = async ({
     project = projectList[0];
   }
 
-  if (!project || project.userId !== userId) {
-    return redirect("/dashboard?error=unauthorized");
+  if (!project) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Project Not Found</h1>
+        <p className="text-gray-600 mb-4">This project doesn't exist or has been deleted.</p>
+        <Link href="/dashboard" className="text-indigo-600 hover:text-indigo-800">Go to Dashboard</Link>
+      </div>
+    );
+  }
+  
+  if (project.userId !== userId) {
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+        <p className="text-gray-600 mb-4">You don't have permission to view this project.</p>
+        <Link href="/dashboard" className="text-indigo-600 hover:text-indigo-800">Go to Dashboard</Link>
+      </div>
+    );
   }
 
   const projectIdForWidget = isNumericId && project.uuid 

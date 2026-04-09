@@ -40,11 +40,27 @@ const page = async ({ params }: {
   }
 
   if (!project) {
-    return redirect("/dashboard?error=not_found");
+    return (
+      <div className="section-container py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Project Not Found</h1>
+          <p className="text-gray-600 mb-4">This project doesn't exist or has been deleted.</p>
+          <Link href="/dashboard" className="text-indigo-600 hover:text-indigo-800">Go to Dashboard</Link>
+        </div>
+      </div>
+    );
   }
   
   if (project.userId !== userId) {
-    return redirect("/dashboard?error=unauthorized");
+    return (
+      <div className="section-container py-8">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
+          <p className="text-gray-600 mb-4">You don't have permission to view this project.</p>
+          <Link href="/dashboard" className="text-indigo-600 hover:text-indigo-800">Go to Dashboard</Link>
+        </div>
+      </div>
+    );
   }
 
   const feedbackCount = project.feedbacks?.length || 0;
