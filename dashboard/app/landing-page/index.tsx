@@ -8,8 +8,8 @@ import { eq } from "drizzle-orm";
 
 const LandingPage = async () => {
   const { userId } = await auth();
+  const isAuthenticated = !!userId;
 
-  // Default to "free" plan - will be overridden if user has a paid subscription
   let currentPlan: string = "free";
   let hasActiveSubscription: boolean = false;
 
@@ -19,26 +19,22 @@ const LandingPage = async () => {
     });
 
     if (subscription?.subscribed && subscription.planType) {
-      // User has an active paid subscription
       currentPlan = subscription.planType;
       hasActiveSubscription = true;
     }
-    // If no subscription or subscribed=false, keep default "free" plan
   }
 
   return (
     <main className="flex-1">
-      {/* Hero Section */}
       <Hero />
 
-      {/* Features Section */}
       <section id="features">
         <FeaturesSection />
       </section>
 
-      {/* Pricing Section */}
       <section id="pricing">
         <PricingSection
+          isAuthenticated={isAuthenticated}
           currentPlan={currentPlan}
           hasActiveSubscription={hasActiveSubscription}
         />

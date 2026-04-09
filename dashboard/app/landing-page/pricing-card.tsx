@@ -3,11 +3,13 @@ import { PricingPlan } from "./pricing-section";
 import { Check, Crown, ArrowDown, Loader2, CreditCard, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { SignUpButton } from "@clerk/nextjs";
 import { useState } from "react";
 import { getStripe } from "@/lib/stripe-client";
 import { monthlyPlanId, yearlyPlanId } from "@/lib/payments";
 
 type PricingCardProps = PricingPlan & {
+  isAuthenticated?: boolean;
   isCurrentPlan?: boolean;
   hasActiveSubscription?: boolean;
   onManageSubscription?: () => void;
@@ -20,6 +22,7 @@ const PricingCard = ({
   features,
   isPopular,
   planKey,
+  isAuthenticated = false,
   isCurrentPlan,
   hasActiveSubscription,
   onManageSubscription,
@@ -28,8 +31,8 @@ const PricingCard = ({
   const [isLoading, setIsLoading] = useState(false);
 
   const handleClick = async () => {
-    // If already on this plan, do nothing
     if (isCurrentPlan) return;
+    if (!isAuthenticated) return;
 
     setIsLoading(true);
 
@@ -95,6 +98,16 @@ const PricingCard = ({
 
   // Determine button text and state
   const getButtonConfig = () => {
+    if (!isAuthenticated) {
+      return {
+        text: "Get Started",
+        icon: <Sparkles className="w-4 h-4 mr-2" />,
+        disabled: false,
+        variant: "default" as const,
+        className: "bg-gray-900 hover:bg-gray-800",
+      };
+    }
+
     if (isCurrentPlan) {
       return {
         text: "Current Plan",
@@ -105,7 +118,6 @@ const PricingCard = ({
       };
     }
 
-    // Free plan with active subscription
     if (planKey === "free" && hasActiveSubscription) {
       return {
         text: isLoading ? "Opening Portal..." : "Downgrade to Free",
@@ -116,7 +128,6 @@ const PricingCard = ({
       };
     }
 
-    // Upgrade scenarios
     if (hasActiveSubscription) {
       return {
         text: isLoading ? "Processing..." : `Switch to ${title}`,
@@ -127,7 +138,6 @@ const PricingCard = ({
       };
     }
 
-    // New subscription - direct checkout
     if (planKey === "monthly" || planKey === "yearly") {
       return {
         text: isLoading ? "Loading..." : `Subscribe Now`,
@@ -138,7 +148,6 @@ const PricingCard = ({
       };
     }
 
-    // Free plan
     return {
       text: "Get Started Free",
       icon: <Sparkles className="w-4 h-4 mr-2" />,
@@ -215,35 +224,54 @@ const PricingCard = ({
 
       {/* Button */}
       <div className="mt-6">
-        <Button
-          onClick={handleClick}
-          disabled={buttonConfig.disabled}
-          variant={buttonConfig.variant}
-          className={`w-full py-3 font-medium transition-all duration-300 
-            hover:scale-[1.02] active:scale-[0.98]
-            ${buttonConfig.className}`}
-        >
-          {isLoading ? (
-            <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              {buttonConfig.text}
-            </>
-          ) : (
-            <>
+        {!isAuthenticated ? (
+          <SignUpButton mode="modal">
+            <Button
+              variant={buttonConfig.variant}
+              className={`w-full py-3 font-medium transition-all duration-300 
+                hover:scale-[1.02] active:scale-[0.98]
+                ${buttonConfig.className}`}
+            >
               {buttonConfig.icon}
               {buttonConfig.text}
-            </>
-          )}
-        </Button>
+            </Button>
+          </SignUpButton>
+        ) : (
+          <Button
+            onClick={handleClick}
+            disabled={buttonConfig.disabled}
+            variant={buttonConfig.variant}
+            className={`w-full py-3 font-medium transition-all duration-300 
+              hover:scale-[1.02] active:scale-[0.98]
+              ${buttonConfig.className}`}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                {buttonConfig.text}
+              </>
+            ) : (
+              <>
+                {buttonConfig.icon}
+                {buttonConfig.text}
+              </>
+            )}
+          </Button>
+        )}
         
         {/* Helper text */}
-        {planKey === "free" && hasActiveSubscription && !isCurrentPlan && (
+        {!isAuthenticated && (
+          <p className="text-xs text-gray-500 text-center mt-2 animate-fade-in">
+            Free signup, no credit card required
+          </p>
+        )}
+        {isAuthenticated && planKey === "free" && hasActiveSubscription && !isCurrentPlan && (
           <p className="text-xs text-gray-500 text-center mt-2 animate-fade-in">
             Opens billing portal to cancel subscription
           </p>
         )}
         
-        {(planKey === "monthly" || planKey === "yearly") && !hasActiveSubscription && (
+        {isAuthenticated && (planKey === "monthly" || planKey === "yearly") && !hasActiveSubscription && (
           <p className="text-xs text-gray-500 text-center mt-2 animate-fade-in">
             Direct checkout with Stripe
           </p>

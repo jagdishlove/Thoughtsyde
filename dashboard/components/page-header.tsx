@@ -16,7 +16,6 @@ const PageHeader = () => {
     <header className="sticky inset-x-0 top-0 z-50 w-full bg-white/80 backdrop-blur-md border-b border-gray-100 transition-all duration-300">
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
           <Link href="/" className="flex items-center hover:opacity-80 transition-opacity duration-300">
             <Image 
               src={feedloopLogo} 
@@ -28,7 +27,6 @@ const PageHeader = () => {
             />
           </Link>
 
-          {/* Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             <Link 
               href="/" 
@@ -56,7 +54,6 @@ const PageHeader = () => {
             </Link>
           </nav>
 
-          {/* Auth Buttons */}
           <div className="flex items-center gap-3">
             <SignedOut>
               <SignInButton mode="modal">

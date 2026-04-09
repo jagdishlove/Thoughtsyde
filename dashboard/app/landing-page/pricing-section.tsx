@@ -60,12 +60,14 @@ export const pricingPlans: PricingPlan[] = [
 ];
 
 type PricingSectionProps = {
+  isAuthenticated?: boolean;
   currentPlan?: string | null;
   hasActiveSubscription?: boolean;
   onManageSubscription?: () => void;
 };
 
 const PricingSection = ({
+  isAuthenticated = false,
   currentPlan = "free",
   hasActiveSubscription = false,
   onManageSubscription,
@@ -82,9 +84,11 @@ const PricingSection = ({
             Flexible Pricing to Fit Your Needs
           </h2>
           <p className="text-lg text-gray-600">
-            {hasActiveSubscription
-              ? `You're currently on the ${currentPlan} plan. Switch plans or manage your subscription below.`
-              : "Start free, upgrade when you're ready. No hidden fees, cancel anytime."}
+            {!isAuthenticated
+              ? "Sign up to get started. Start free, upgrade when you're ready."
+              : hasActiveSubscription
+                ? `You're currently on the ${currentPlan} plan. Switch plans or manage your subscription below.`
+                : "Start free, upgrade when you're ready. No hidden fees, cancel anytime."}
           </p>
         </div>
 
@@ -94,7 +98,8 @@ const PricingSection = ({
             <PricingCard
               key={index}
               {...plan}
-              isCurrentPlan={currentPlan === plan.planKey}
+              isAuthenticated={isAuthenticated}
+              isCurrentPlan={isAuthenticated && currentPlan === plan.planKey}
               hasActiveSubscription={hasActiveSubscription}
               onManageSubscription={onManageSubscription}
             />

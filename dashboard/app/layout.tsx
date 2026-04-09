@@ -14,9 +14,9 @@ export const metadata = {
   description:
     "Easily integrate our feedback widget and start collecting valuable feedback from your users today.",
   icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-    shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
+    icon: [{ url: "/favicon.png" }],
+    shortcut: "/favicon.png",
+    apple: [{ url: "/favicon.png" }],
   },
 };
 
