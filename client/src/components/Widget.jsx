@@ -42,13 +42,33 @@ export const Widget = ({ projectId }) => {
     setRating(index + 1);
   };
 
-  const checkExistingSubmission = async (email) => {
+  const getProjectIdByUuid = async (uuid) => {
+    try {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("id")
+        .eq("uuid", uuid)
+        .single();
+
+      if (error) {
+        console.error("Error fetching project:", error);
+        return null;
+      }
+
+      return data?.id;
+    } catch (err) {
+      console.error("Error fetching project:", err);
+      return null;
+    }
+  };
+
+  const checkExistingSubmission = async (email, projectIdInteger) => {
     try {
       const { data, error, count } = await supabase
         .from("feedbacks")
         .select("id", { count: "exact" })
         .eq("user_email", email)
-        .eq("project_id", projectId)
+        .eq("project_id", projectIdInteger)
         .limit(1);
 
       if (error) {
@@ -74,7 +94,15 @@ export const Widget = ({ projectId }) => {
     const form = e.target;
     const email = form.email.value;
 
-    const alreadyExists = await checkExistingSubmission(email);
+    const projectIdInteger = await getProjectIdByUuid(projectId);
+    
+    if (!projectIdInteger) {
+      console.error("Project not found");
+      setIsLoading(false);
+      return;
+    }
+
+    const alreadyExists = await checkExistingSubmission(email, projectIdInteger);
     
     if (alreadyExists) {
       localStorage.setItem(storageKey, "true");
@@ -84,7 +112,7 @@ export const Widget = ({ projectId }) => {
     }
 
     const data = {
-      p_project_id: projectId,
+      p_project_id: projectIdInteger,
       p_user_name: form.name.value,
       p_user_email: email,
       p_message: form.feedback.value,
